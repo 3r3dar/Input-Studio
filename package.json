@@ -1,0 +1,13 @@
+{
+  "name": "input-studio-local",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Experimental local Windows interface for MCHOSE Jet75-II snapshots and peripheral profile drafts",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/3r3dar/Input-Studio.git" },
+  "type": "module",
+  "scripts": { "start": "node server.mjs", "test": "node scripts/test.mjs" },
+  "engines": { "node": ">=20" },
+  "os": ["win32"],
+  "dependencies": { "node-hid": "3.4.0" }
+}

@@ -1,0 +1,40 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {setTimeout as delay} from 'node:timers/promises';
+import net from 'node:net';
+test('HTTP access controls and read-only defaults (no device I/O)',async()=>{
+  const reserve=net.createServer();await new Promise(resolve=>reserve.listen(0,'127.0.0.1',resolve));const port=reserve.address().port;await new Promise(resolve=>reserve.close(resolve));
+  const child=spawn(process.execPath,['server.mjs'],{cwd:new URL('../',import.meta.url),env:{...process.env,INPUT_STUDIO_PORT:String(port)},windowsHide:true});
+  let output='';child.stdout.on('data',b=>{output+=b;});child.stderr.on('data',b=>{output+=b;});
+  const origin=`http://127.0.0.1:${port}`;
+  try{
+    let ready=false;for(let i=0;i<100;i++){if(output.includes('Read-only until')){ready=true;break;}if(child.exitCode!==null)break;await delay(100);}assert.ok(ready,output);
+    assert.equal((await fetch(origin+'/health')).status,200);
+    const html=await(await fetch(origin+'/')).text();const token=html.match(/name="input-token" content="([a-f0-9]+)"/)[1];assert.equal(token.length,64);
+    const post=(route,body,extra={})=>fetch(origin+route,{method:'POST',headers:{'X-Input-Token':token,'Content-Type':'application/json',...extra},body:JSON.stringify(body)});
+    assert.equal((await fetch(origin+'/api/devices')).status,403);
+    assert.equal((await post('/api/lock',{device:'mouse'},{Origin:'https://untrusted.invalid'})).status,403);
+    const blocked=await post('/api/write',{device:'keyboard',action:'function',value:{brightness:1}});assert.equal(blocked.status,400);assert.match((await blocked.json()).error,/Read-only/);
+    assert.equal((await post('/api/unlock',{device:'mouse',confirmation:'yes'})).status,400);
+    const keyboardUnlock=await post('/api/unlock',{device:'keyboard',confirmation:'ENABLE'});assert.equal(keyboardUnlock.status,400);assert.match((await keyboardUnlock.json()).error,/Спочатку зчитай/);
+    assert.equal((await post('/api/read',{device:'other'})).status,400);
+    const preview=await post('/api/preview',{device:'keyboard',action:'trigger',value:{keyIds:[71],actuation:1.23},revision:'missing'});
+    assert.equal(preview.status,400);assert.match((await preview.json()).error,/знімок/);
+    assert.equal((await post('/api/preview',{device:'mouse',action:'trigger',value:{}})).status,400);
+    assert.equal((await post('/api/preview',{device:'keyboard'},{'X-Input-Token':'bad'})).status,403);
+    assert.equal((await post('/api/preview',{device:'keyboard'},{Origin:'https://untrusted.invalid'})).status,403);
+    const batch=await post('/api/preview-batch',{device:'keyboard',operations:[{action:'trigger',value:{keyIds:[71],actuation:1.23}}],revision:'missing'});
+    assert.equal(batch.status,400);assert.match((await batch.json()).error,/знімок/);
+    assert.equal((await post('/api/preview-batch',{device:'mouse',operations:[]})).status,400);
+    assert.equal((await post('/api/preview-batch',{device:'keyboard',operations:[]},{'X-Input-Token':'bad'})).status,403);
+    assert.equal((await fetch(origin+'/../server.mjs')).status,403);
+    assert.equal((await fetch(origin+'/app.mjs')).headers.get('content-type'),'text/javascript; charset=utf-8');
+    assert.equal((await fetch(origin+'/keyboard-workflow.mjs')).status,200);
+    for(const file of ['keyboard-editor.mjs','keyboard-model.mjs','keyboard-editor.css'])assert.equal((await fetch(origin+'/'+file)).status,200);
+    for(const file of ['keyboard-trigger.mjs','keyboard-trigger.css'])assert.equal((await fetch(origin+'/'+file)).status,200);
+    const artwork=await fetch(origin+'/assets/mouse.svg');assert.equal(artwork.status,200);assert.equal(artwork.headers.get('content-type'),'image/svg+xml');
+    assert.match(await artwork.text(),/^<svg xmlns="http:\/\/www.w3.org\/2000\/svg"/);
+    assert.equal((await post('/api/lock',{device:'keyboard'})).status,200);
+  }finally{child.kill();}
+});

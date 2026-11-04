@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="input-token" content="__TOKEN__">
+  <meta name="theme-color" content="#18181b">
+  <title>Input Studio</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/keyboard-editor.css">
+  <link rel="stylesheet" href="/keyboard-trigger.css">
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="i-mouse" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="6"/><path d="M12 6v4M6 12h12"/></symbol>
+      <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 15h10"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="8" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M5.3 8a7 7 0 0 1 11.6-3L20 8M4 16l3.1 3A7 7 0 0 0 18.7 16"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 5-7 7 7 7M5 12h15"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7h.01"/></symbol>
+      <symbol id="i-light" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8.5 15.5a6 6 0 1 1 7 0L15 18H9Z"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="m10 13 4-4M8 15l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M16 9l1-1a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0) scale(.9)"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="app-shell">
+    <header class="titlebar">
+      <button id="sidebar-toggle" class="icon-button" aria-label="Згорнути бічну панель" aria-expanded="true" title="Бічна панель"><svg class="icon"><use href="#i-menu"/></svg></button>
+      <div class="app-brand"><svg class="icon"><use href="#i-mouse"/></svg><span>Input Studio</span><span class="version">0.1</span></div>
+      <span class="titlebar-caption">Локальний центр периферії</span>
+      <span class="local-indicator" title="Лише 127.0.0.1"><i></i> Локально</span>
+    </header>
+
+    <aside class="sidebar" aria-label="Навігація">
+      <div class="nav-heading">РОБОЧИЙ ПРОСТІР</div>
+      <nav>
+        <button data-page="overview" class="nav-item active" title="Мої пристрої"><svg class="icon"><use href="#i-grid"/></svg><span>Мої пристрої</span></button>
+        <div class="nav-heading device-heading">ПРИСТРОЇ</div>
+        <button data-page="mouse" class="nav-item" title="HATOR Pulsar 2 Pro"><svg class="icon"><use href="#i-mouse"/></svg><span>HATOR Pulsar 2 Pro</span><i class="nav-dot" id="mouse-dot"></i></button>
+        <button data-page="keyboard" class="nav-item" title="MCHOSE Jet75-II"><svg class="icon"><use href="#i-keyboard"/></svg><span>MCHOSE Jet75-II</span><i class="nav-dot" id="keyboard-dot"></i></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button data-page="support" class="nav-item" title="Можливості та безпека"><svg class="icon"><use href="#i-settings"/></svg><span>Можливості та безпека</span></button>
+        <div class="sidebar-version"><span>Input Studio</span><span>Експериментальна 0.1</span></div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="content-header">
+        <div><h1 id="heading">Мої пристрої</h1><p id="caption">Уся периферія в одному місці.</p></div>
+        <button id="scan" class="button secondary refresh-button" title="Оновити список пристроїв"><svg class="icon"><use href="#i-refresh"/></svg><span>Оновити</span></button>
+      </header>
+      <div id="message" class="notice" role="status" hidden></div>
+
+      <section id="overview" class="page">
+        <div class="section-label"><span>Ваші пристрої</span><span id="device-count">Перевірка підключення…</span></div>
+        <div class="device-grid">
+          <article class="device-card">
+            <div class="device-card-top"><span class="device-kind"><svg class="icon"><use href="#i-mouse"/></svg> Миша</span><span id="mouse-status" class="connection-badge">Перевірка…</span></div>
+            <div class="product-art"><img src="/assets/mouse.svg" alt="Ілюстрація миші HATOR Pulsar 2 Pro Wireless" draggable="false"></div>
+            <div class="device-card-name"><h2>HATOR Pulsar 2 Pro</h2><p>Wireless · PAW3335</p></div>
+            <div class="device-card-stats"><div><span>Чутливість</span><strong id="card-mouse-dpi">Не зчитано</strong></div><div><span>Частота</span><strong id="card-mouse-rate">Не зчитано</strong></div></div>
+            <button data-open="mouse" class="button card-open">Налаштувати<svg class="icon"><use href="#i-arrow"/></svg></button>
+          </article>
+          <article class="device-card">
+            <div class="device-card-top"><span class="device-kind"><svg class="icon"><use href="#i-keyboard"/></svg> Клавіатура</span><span id="keyboard-status" class="connection-badge">Перевірка…</span></div>
+            <div class="product-art keyboard-product" role="img" aria-label="Стилізована ілюстрація клавіатури"><div class="keyboard-illustration" data-keyboard-art aria-hidden="true"></div></div>
+            <div class="device-card-name"><h2>MCHOSE Jet75-II</h2><p>Hall Effect · USB</p></div>
+            <div class="device-card-stats"><div><span>Профіль</span><strong id="card-keyboard-profile">Не зчитано</strong></div><div><span>Підтримка</span><strong class="subtle">Експериментальна</strong></div></div>
+            <button data-open="keyboard" class="button card-open">Налаштувати<svg class="icon"><use href="#i-arrow"/></svg></button>
+          </article>
+        </div>
+        <div class="quiet-note"><svg class="icon"><use href="#i-lock"/></svg><p>Відкриття картки не змінює пристрій. Запис — лише після окремого дозволу.</p><button data-page="support" class="text-button">Докладніше<svg class="icon"><use href="#i-arrow"/></svg></button></div>
+      </section>
+
+      <section id="mouse" class="page" hidden>
+        <div class="device-toolbar"><button data-open="overview" class="button ghost back-button"><svg class="icon"><use href="#i-back"/></svg>Пристрої</button><div class="toolbar-actions"><span id="mouse-mode" class="mode-badge">Лише читання</span><button id="read-mouse" class="button secondary"><svg class="icon"><use href="#i-refresh"/></svg>Зчитати</button></div></div>
+        <div class="device-layout">
+          <aside class="device-preview" aria-label="Миша">
+            <div class="preview-art"><img src="/assets/mouse.svg" alt="Ілюстрація миші HATOR Pulsar 2 Pro" draggable="false"></div>
+            <h2>Pulsar 2 Pro</h2><p class="preview-brand">HATOR · 2.4 GHz</p>
+            <div class="preview-metrics"><div><span>DPI</span><strong id="mouse-dpi-current">—</strong></div><div><span>Частота</span><strong id="mouse-rate-current">—</strong></div><div><span>Батарея</span><strong id="mouse-battery-current">—</strong></div></div>
+            <details class="raw-details"><summary>Дані пристрою</summary><pre id="mouse-summary">Поточні значення ще не зчитані.</pre></details>
+          </aside>
+          <div class="device-settings">
+            <div class="device-tabs" role="tablist" aria-label="Налаштування миші">
+              <button class="tab active" role="tab" id="mouse-tab-performance" data-device-tab="mouse:performance" aria-controls="mouse-performance" aria-selected="true">Продуктивність</button>
+              <button class="tab" role="tab" id="mouse-tab-buttons" data-device-tab="mouse:buttons" aria-controls="mouse-buttons" aria-selected="false" tabindex="-1">Кнопки</button>
+              <button class="tab" role="tab" id="mouse-tab-lighting" data-device-tab="mouse:lighting" aria-controls="mouse-lighting" aria-selected="false" tabindex="-1">Підсвітка</button>
+              <button class="tab" role="tab" id="mouse-tab-advanced" data-device-tab="mouse:advanced" aria-controls="mouse-advanced" aria-selected="false" tabindex="-1">Додатково</button>
+            </div>
+            <div id="mouse-performance" class="tab-panel" role="tabpanel" aria-labelledby="mouse-tab-performance" data-device-panel="mouse:performance">
+              <form id="mouse-dpi" class="setting-card">
+                <div class="setting-heading"><h3>Чутливість</h3><span>DPI</span></div><p class="help">Значення активного ступеня. Крок — 100 DPI.</p>
+                <div class="dpi-control"><button type="button" data-step-target="dpi" data-step="-100" class="step-button" aria-label="Зменшити DPI">−</button><label class="sr-only" for="dpi">DPI активного ступеня</label><input id="dpi" type="number" min="100" max="16000" step="100" value="800"><button type="button" data-step-target="dpi" data-step="100" class="step-button" aria-label="Збільшити DPI">+</button></div>
+                <div class="choice-group preset-group" aria-label="Швидкий вибір DPI"><button type="button" data-choice-target="dpi" data-value="400">400</button><button type="button" data-choice-target="dpi" data-value="800">800</button><button type="button" data-choice-target="dpi" data-value="1600">1600</button><button type="button" data-choice-target="dpi" data-value="3200">3200</button><button type="button" data-choice-target="dpi" data-value="6400">6400</button></div>
+                <div class="form-footer"><span>100–16 000 DPI</span><button class="button small" data-write="mouse">Застосувати</button></div>
+              </form>
+              <form id="mouse-rate" class="setting-card">
+                <div class="setting-heading"><h3>Частота опитування</h3><svg class="icon"><use href="#i-link"/></svg></div><p class="help">Як часто миша передає дані комп’ютеру.</p>
+                <label class="sr-only" for="rate">Частота опитування</label><select id="rate" class="sr-only"><option value="" selected disabled>Не зчитано</option><option value="125">125</option><option value="250">250</option><option value="500">500</option><option value="1000">1000</option></select>
+                <div class="choice-group rate-group" aria-label="Частота опитування"><button type="button" data-choice-target="rate" data-value="125">125 <span>Гц</span></button><button type="button" data-choice-target="rate" data-value="250">250 <span>Гц</span></button><button type="button" data-choice-target="rate" data-value="500">500 <span>Гц</span></button><button type="button" data-choice-target="rate" data-value="1000">1000 <span>Гц</span></button></div>
+                <div class="form-footer"><span>Апаратний максимум — 1000 Гц</span><button class="button small" data-write="mouse">Застосувати</button></div>
+              </form>
+            </div>
+            <div id="mouse-buttons" class="tab-panel" role="tabpanel" aria-labelledby="mouse-tab-buttons" data-device-panel="mouse:buttons" hidden><div class="empty-state"><svg class="icon"><use href="#i-mouse"/></svg><h3>Кнопки поки недоступні</h3><p>Цей приймач не повертає підтверджений банк кнопок. Перепризначення й макроси заблоковані, щоб зберегти поточну конфігурацію.</p><span class="mode-badge">Без змін на пристрої</span></div></div>
+            <div id="mouse-lighting" class="tab-panel" role="tabpanel" aria-labelledby="mouse-tab-lighting" data-device-panel="mouse:lighting" hidden>
+              <form id="mouse-light" class="setting-card"><div class="setting-heading"><h3>Світловий ефект</h3><svg class="icon"><use href="#i-light"/></svg></div><label for="mouse-effect">Ефект</label><select id="mouse-effect"></select><div class="field-row"><label for="mouse-color">Колір</label><input id="mouse-color" type="color" value="#b6a3ed"></div><div class="color-swatches" data-color-target="mouse-color" aria-label="Палітра кольорів"></div><label for="mouse-speed">Швидкість</label><input id="mouse-speed" type="range" min="1" max="5" value="3"><div class="range-labels"><span>Повільно</span><span>Швидко</span></div><div class="form-footer"><span>Колір і швидкість — де підтримуються</span><button class="button small" data-write="mouse">Застосувати ефект</button></div></form>
+              <form id="mouse-bright" class="setting-card"><h3>Яскравість</h3><label class="sr-only" for="mouse-brightness">Яскравість підсвітки</label><select id="mouse-brightness" class="sr-only"><option>0</option><option>25</option><option>50</option><option>75</option><option>100</option></select><div class="choice-group"><button type="button" data-choice-target="mouse-brightness" data-value="0">0%</button><button type="button" data-choice-target="mouse-brightness" data-value="25">25%</button><button type="button" data-choice-target="mouse-brightness" data-value="50">50%</button><button type="button" data-choice-target="mouse-brightness" data-value="75">75%</button><button type="button" data-choice-target="mouse-brightness" data-value="100">100%</button></div><div class="form-footer"><span>Для активного ефекту</span><button class="button small" data-write="mouse">Застосувати</button></div></form>
+            </div>
+            <div id="mouse-advanced" class="tab-panel" role="tabpanel" aria-labelledby="mouse-tab-advanced" data-device-panel="mouse:advanced" hidden><article class="setting-card"><h3>Доступ до змін</h3><p class="help">Спочатку зчитайте пристрій і закрийте інші програми, які ним керують. Перед кожним записом створюється копія та перевіряється результат.</p><div class="button-row"><button data-unlock="mouse" class="button secondary"><svg class="icon"><use href="#i-lock"/></svg>Дозволити зміни…</button><button data-lock="mouse" class="button ghost">Лише читання</button></div></article><article class="setting-card"><h3>Доступні можливості</h3><dl class="info-list"><div><dt>DPI, герцовка, підсвітка</dt><dd>Локальний адаптер</dd></div><div><dt>Кнопки, макроси, LOD, debounce</dt><dd>Не підтверджено</dd></div><div><dt>Автоматичні профілі OpenMouse</dt><dd>Без змін</dd></div><div><dt>Прошивка та скидання</dt><dd>Заблоковано</dd></div></dl></article></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="keyboard" class="page" hidden>
+        <div class="device-toolbar"><button data-open="overview" class="button ghost back-button"><svg class="icon"><use href="#i-back"/></svg>Пристрої</button><div class="toolbar-actions"><span id="keyboard-mode" class="mode-badge">Лише читання</span><button id="read-keyboard" class="button secondary"><svg class="icon"><use href="#i-refresh"/></svg>Зчитати</button></div></div>
+        <div class="device-layout">
+          <aside class="device-preview" aria-label="Клавіатура"><div class="preview-art keyboard-product" role="img" aria-label="Стилізована ілюстрація клавіатури"><div class="keyboard-illustration" data-keyboard-art aria-hidden="true"></div></div><h2>Jet75-II</h2><p class="preview-brand">MCHOSE · Hall Effect</p><div class="preview-metrics"><div><span>Підключення</span><strong>USB</strong></div><div><span>Прошивка</span><strong id="keyboard-firmware-current">—</strong></div><div><span>Профіль</span><strong id="keyboard-profile-current">—</strong></div></div><details class="raw-details"><summary>Дані пристрою</summary><pre id="keyboard-summary">Поточні значення ще не зчитані.</pre></details></aside>
+          <div class="device-settings">
+            <div class="device-tabs" role="tablist" aria-label="Налаштування клавіатури"><button class="tab active" role="tab" id="keyboard-tab-performance" data-device-tab="keyboard:performance" aria-controls="keyboard-performance" aria-selected="true">Спрацювання</button><button class="tab" role="tab" id="keyboard-tab-keys" data-device-tab="keyboard:keys" aria-controls="keyboard-keys" aria-selected="false" tabindex="-1">Клавіші</button><button class="tab" role="tab" id="keyboard-tab-lighting" data-device-tab="keyboard:lighting" aria-controls="keyboard-lighting" aria-selected="false" tabindex="-1">Підсвітка</button><button class="tab" role="tab" id="keyboard-tab-advanced" data-device-tab="keyboard:advanced" aria-controls="keyboard-advanced" aria-selected="false" tabindex="-1">Додатково</button></div>
+            <div id="keyboard-performance" class="tab-panel" role="tabpanel" aria-labelledby="keyboard-tab-performance" data-device-panel="keyboard:performance"><form id="keyboard-trigger" class="setting-card"><div class="setting-heading"><h3>Точка спрацювання</h3><span>Hall Effect</span></div><p class="help">Параметри вибраних записів клавіш. Фізична відповідність розкладки ще перевіряється.</p><div class="field-row"><label for="actuation">Глибина натискання</label><div class="unit-input"><input id="actuation" type="number" min="0.04" max="3.36" step="0.01" value="1.50"><span>мм</span></div></div><div class="setting-divider"></div><label class="switch-row" for="rt"><span><strong>Rapid Trigger</strong><small>Динамічне спрацювання та відпускання</small></span><input id="rt" type="checkbox" role="switch"></label><div class="two-fields"><label for="rt-press">Натискання, мм<input id="rt-press" type="number" min="0.04" max="3.36" step="0.01" value="0.20"></label><label for="rt-release">Відпускання, мм<input id="rt-release" type="number" min="0.04" max="3.36" step="0.01" value="0.20"></label></div><div class="form-footer"><span id="selected-count">Не вибрано клавіш</span><button class="button small" data-write="keyboard">Застосувати</button></div></form><div class="inline-note"><svg class="icon"><use href="#i-info"/></svg><span>Вибір записів — у вкладці «Клавіші». Редагування доступне лише після перевірки розкладки.</span></div></div>
+            <div id="keyboard-keys" class="tab-panel" role="tabpanel" aria-labelledby="keyboard-tab-keys" data-device-panel="keyboard:keys" hidden><article class="setting-card"><h3>Записи активного профілю</h3><p class="help">Назви прочитані із заводської таблиці. Це список записів, а не підтверджена фізична схема клавіатури.</p><div id="keys" class="key-list"><div class="empty-inline">Зчитайте клавіатуру, щоб побачити її записи.</div></div><details class="remap-details"><summary>Розширене перепризначення</summary><form id="keyboard-keymap"><label for="hid-code">HID-код нової клавіші<input id="hid-code" type="number" min="4" max="231" value="4"></label><label for="modifiers">Маска модифікаторів<input id="modifiers" type="number" min="0" max="255" value="0"></label><div class="form-footer"><span>Для одного вибраного запису</span><button class="button small" data-write="keyboard">Перепризначити</button></div></form></details></article></div>
+            <div id="keyboard-lighting" class="tab-panel" role="tabpanel" aria-labelledby="keyboard-tab-lighting" data-device-panel="keyboard:lighting" hidden><form id="keyboard-light" class="setting-card"><div class="setting-heading"><h3>Підсвітка клавіатури</h3><svg class="icon"><use href="#i-light"/></svg></div><label for="keyboard-effect">Ефект</label><select id="keyboard-effect"></select><div class="two-fields"><label for="keyboard-brightness">Яскравість, %<input id="keyboard-brightness" type="number" min="0" max="100" value="80"></label><label for="keyboard-speed">Швидкість 0–4<input id="keyboard-speed" type="number" min="0" max="4" value="2"></label></div><div class="field-row"><label for="keyboard-color">Колір</label><input id="keyboard-color" type="color" value="#b6a3ed"></div><div class="color-swatches" data-color-target="keyboard-color" aria-label="Палітра клавіатури"></div><div class="setting-divider"></div><label class="switch-row" for="lock-win"><span><strong>Win Lock</strong><small>Блокувати клавішу Windows</small></span><input id="lock-win" type="checkbox" role="switch"></label><div class="form-footer"><span>З урахуванням блокування розкладки</span><button class="button small" data-write="keyboard">Застосувати</button></div></form></div>
+            <div id="keyboard-advanced" class="tab-panel" role="tabpanel" aria-labelledby="keyboard-tab-advanced" data-device-panel="keyboard:advanced" hidden><article class="setting-card"><h3>Доступ до змін</h3><p class="help">На цій прошивці порядок записів відрізняється від довідкового. Якщо перевірка розкладки не пройдена, дозвіл на запис відхиляється і в інтерфейсі, і на сервері.</p><div class="button-row"><button data-unlock="keyboard" class="button secondary"><svg class="icon"><use href="#i-lock"/></svg>Дозволити зміни…</button><button data-lock="keyboard" class="button ghost">Лише читання</button></div></article><article class="setting-card"><h3>Статус підтримки</h3><dl class="info-list"><div><dt>Читання поточного профілю</dt><dd>Перевірено</dd></div><div><dt>Запис параметрів</dt><dd>Експериментальний</dd></div><div><dt>Герцовка, DKS, SOCD, макроси</dt><dd>Не підтверджено</dd></div><div><dt>Калібрування та прошивка</dt><dd>Заблоковано</dd></div></dl></article></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="support" class="page" hidden><div class="support-layout"><article class="setting-card"><div class="setting-heading"><h3>Ваші пристрої — ваші налаштування</h3><svg class="icon"><use href="#i-lock"/></svg></div><p class="help">Input Studio — окремий експериментальний інтерфейс, а не офіційний OpenMouse. Підтверджені можливості відокремлені від тих, які ще досліджуються.</p><dl class="info-list"><div><dt>Підключення</dt><dd>Тільки 127.0.0.1</dd></div><div><dt>Запис за замовчуванням</dt><dd>Вимкнений</dd></div><div><dt>Копія перед записом</dt><dd>Обов’язкова</dd></div><div><dt>Перевірка результату</dt><dd>Повторне зчитування</dd></div><div><dt>Прошивка, скидання, автозапуск</dt><dd>Не змінюються</dd></div></dl></article><article class="setting-card"><h3>Локальні дані</h3><p class="help">Без телеметрії, акаунтів та зовнішніх ресурсів. Копії конфігурації зберігаються лише на цьому комп’ютері.</p><p id="data-path" class="file-path"></p><p class="help">Перед записом закрийте інші програми керування тим самим пристроєм. Input Studio не завершує їх автоматично.</p></article></div></section>
+      <footer class="content-footer"><span><i></i> Без прихованих змін</span><span>Input Studio · 0.1 experimental</span></footer>
+    </main>
+  </div>
+  <script type="module" src="/app.mjs"></script>
+</body>
+</html>

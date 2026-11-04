@@ -1,0 +1,16 @@
+# Local history and private device data
+/backups/
+/.local/
+/.env
+/.env.*
+/node_modules/
+*.log
+*.zip
+*.tgz
+/coverage/
+/test-results/
+/dist/
+/Thumbs.db
+/.DS_Store
+# Previously downloaded manufacturer image; public build uses our own illustration.
+/public/assets/hator.png
